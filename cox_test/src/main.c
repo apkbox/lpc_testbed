@@ -105,42 +105,39 @@ void HandleInputChar(char c)
         if (handler) {
             switch (handler->id) {
                 case PROTO_ID_RFID:
-                    if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_PORT) {
-                        if (PROTO_RF_GetAction() == PROTO_RF_ACTION_READ) {
-                            for (i = 0; i < PROTO_RF_GetLength(); i++) {
-                                int addr = PROTO_RF_GetAddress();
-                                uint8_t b;
+                    if (PROTO_RF_GetAction() == PROTO_RF_ACTION_READ) {
+                        for (i = 0; i < PROTO_RF_GetLength(); i++) {
+                            int addr = PROTO_RF_GetAddress();
+                            uint8_t b;
+
+                            if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_PORT) {
                                 if (PROTO_RF_GetMode() == PROTO_RF_MODE_INCREMENT_ADDRESS)
                                     addr += i;
 
-                                b = CL632_SpiReadByte(PROTO_RF_GetAddress());
-                                func_printf_nofloat(UART_WriteChar, " %02.2X", b);
+                                b = CL632_SpiReadByte(addr);
                             }
-                        }
-                        else if (PROTO_RF_GetAction() == PROTO_RF_ACTION_WRITE) {
-                            for (i = 0; i < PROTO_RF_GetLength(); i++) {
-                                int addr = PROTO_RF_GetAddress();
-                                uint8_t b;
-                                if (PROTO_RF_GetMode() == PROTO_RF_MODE_INCREMENT_ADDRESS)
-                                    addr += i;
+                            else if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_MEMORY) {
+                                CL632_ReadE2(addr, &b, 1);
+                            }
 
-                                CL632_SpiWrite(PROTO_RF_GetAddress(), data, PROTO_RF_GetLength());
+                            func_printf_nofloat(UART_WriteChar, " %02.2X", b);
+                        }
+                    }
+                    else if (PROTO_RF_GetAction() == PROTO_RF_ACTION_WRITE) {
+                            int addr = PROTO_RF_GetAddress();
+                            uint8_t *data = PROTO_RF_GetData();
+                            int len = PROTO_RF_GetLength();
+                            int same_address = PROTO_RF_GetMode() == PROTO_RF_MODE_SAME_ADDRESS;
+
+                            if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_PORT) {
+                                CL632_SpiWrite(addr, same_address, data, len);
+                            }
+                            else if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_MEMORY) {
+                                CL632_WriteE2(addr, data, len);
                             }
                         }
                     }
-                    else if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_MEMORY) {
-                        if (PROTO_RF_GetAction() == PROTO_RF_ACTION_READ) {
-                            for (i = 0; i < PROTO_RF_GetLength(); i++) {
-                                int addr = PROTO_RF_GetAddress();
-                                uint8_t b;
-                                if (PROTO_RF_GetMode() == PROTO_RF_MODE_INCREMENT_ADDRESS)
-                                    addr += i;
 
-                                CL632_ReadE2(PROTO_RF_GetAddress(), &b, 1);
-                                func_printf_nofloat(UART_WriteChar, " %02.2X", b);
-                            }
-                        }
-                    }
                     UART_PrintString("\r\n");
                     break;
             }

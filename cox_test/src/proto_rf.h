@@ -28,6 +28,7 @@ RFID_PROTO_TARGET PROTO_RF_GetTarget();
 RFID_PROTO_MODE PROTO_RF_GetMode();
 int PROTO_RF_GetAddress();
 int PROTO_RF_GetLength();
+uint8_t *PROTO_RF_GetData();
 
 
 #endif /* PROTO_RF_H_ */

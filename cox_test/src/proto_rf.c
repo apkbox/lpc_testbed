@@ -21,6 +21,10 @@ static RFID_PROTO_MODE mode;
 static int address;
 static int length;
 
+#define BUFFER_LEN                 64
+static uint8_t buffer[BUFFER_LEN];
+static int buffer_index; 
+
 
 RFID_PROTO_ACTION PROTO_RF_GetAction()
 {
@@ -49,6 +53,11 @@ int PROTO_RF_GetAddress()
 int PROTO_RF_GetLength()
 {
     return length;
+}
+
+
+void PROTO_RF_StdTokenCallback(const char *buffer)
+{
 }
 
 
@@ -86,6 +95,7 @@ PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
             break;
 
         case STATE_EXPECT_MODE:
+            buffer_index = 0;
             if (c == '+') {
                 mode = PROTO_RF_MODE_INCREMENT_ADDRESS;
                 state = STATE_EXPECT_ADDRESS;
@@ -101,19 +111,48 @@ PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
             break;
 
         case STATE_EXPECT_ADDRESS:
-            state = STATE_EXPECT_DATA_DELIMITER;
-            break;
-
-        case STATE_EXPECT_DATA_DELIMITER:
-            if (action == PROTO_RF_ACTION_READ)
-                state = STATE_EXPECT_LENGTH;
-            else if (action == PROTO_RF_ACTION_WRITE)
-                state = STATE_EXPECT_DATA;
+            if (iscrlf(c) && buffer_index == 0 && action == PROTO_RF_ACTION_READ) {
+                length = 1;
+                state = STATE_INITIAL;
+                return RESULT_ACCEPT;
+            }
+            else if (c == ':') {
+                if (buffer_index == 0) {
+                    state = STATE_INITIAL;
+                    return RESULT_ERROR;
+                }
+                else {
+                    buffer[buffer_index] = '\0';
+                    address = strtoul(buffer, 0, 16);
+                    if (&& action == PROTO_RF_ACTION_READ)
+                        state = STATE_EXPECT_LENGTH;
+                    else
+                        state = STATE_EXPECT_DATA;
+                }
+            }
+            else if (isxdigit(c)) {
+                if (buffer_index >= (BUFFER_LEN - 1)) {
+                    state = STATE_INITIAL;
+                    return RESULT_ERROR;
+                }
+                else {
+                    buffer[buffer_index++] = c;
+                }
+            }
+            else {
+                state = STATE_INITIAL;
+                return RESULT_ERROR;
+            }
             break;
 
         case STATE_EXPECT_LENGTH:
-            state = STATE_INITIAL;
-            return RESULT_ACCEPT;
+            if (iscrlf(c)) {
+                state = STATE_INITIAL;
+                return RESULT_ACCEPT;
+            }
+            else {
+            }
+            break;
 
         case STATE_EXPECT_DATA:
             state = STATE_INITIAL;
