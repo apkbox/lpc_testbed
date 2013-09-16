@@ -1,6 +1,7 @@
 #include "string_util.h"
 
 
+#if !USE_CTYPE_H
 int isdigit(char c)
 {
     return (c >= '0' && c <= '9');
@@ -18,12 +19,36 @@ int isxdigit(char c)
     return isdigit(c) || ishexletter(c);
 }
 
+
+char toupper(char c)
+{
+    if (c >= 'a' && c <= 'z')
+        return c - 0x20;
+    else
+        return c;
+}
+#endif
+
 int iscrlf(char c)
 {
     return (c == '\r' || c == '\n');
 }
 
-static unsigned int string_to_decimal( char *str )
+
+#if !USE_STRING_H || STRCMPI_UNDEFINED
+int strcmpi(const char *s1, const char *s2)
+{
+    while (*s1 != 0 && *s2 != 0) {
+        if (*s1++ != *s2++)
+            return 1;
+    }
+
+    return !(*s1 == 0 && *s2 == 0);
+}
+#endif
+
+
+unsigned int string_to_decimal( char *str )
 {
     unsigned int v = 0;
     char *p = str;
@@ -38,7 +63,7 @@ static unsigned int string_to_decimal( char *str )
 }
 
 
-static unsigned long string_to_hex( char *str )
+unsigned long string_to_hex(char *str)
 {
     unsigned long v = 0;
     char *p = str;
@@ -62,24 +87,5 @@ static unsigned long string_to_hex( char *str )
     return v;
 }
 
-
-char toupper(char c)
-{
-    if (c >= 'a' && c <= 'z')
-        return c - 0x20;
-    else
-        return c;
-}
-
-
-int CompareStringsNoCase(const char *s1, const char *s2)
-{
-    while (*s1 != 0 && *s2 != 0) {
-        if (*s1++ != *s2++)
-            return 1;
-    }
-
-    return !(*s1 == 0 && *s2 == 0);
-}
 
 

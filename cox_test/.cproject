@@ -39,7 +39,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_small_printf_m0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/kernel}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib/inc}&quot;"/>
@@ -56,7 +55,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_small_printf_m0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.692743014" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="com.crt.advproject.assembler.input.1565539342" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
@@ -76,16 +74,16 @@
 								<option id="com.crt.advproject.link.crpenable.775525495" name="Enable Code Read Protect" superClass="com.crt.advproject.link.crpenable"/>
 								<option id="com.crt.advproject.link.gcc.multicore.slave.1540778298" name="Multicore slave" superClass="com.crt.advproject.link.gcc.multicore.slave"/>
 								<option id="gnu.c.link.option.libs.182878317" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lib_small_printf_m0"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc111x_lib"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="cmsis_lpc11xx"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="CoOS"/>
+									<listOptionValue builtIn="false" value="lib_small_printf_m0"/>
+									<listOptionValue builtIn="false" value="CoOS"/>
+									<listOptionValue builtIn="false" value="lpc111x_lib"/>
+									<listOptionValue builtIn="false" value="cmsis_lpc11xx"/>
 								</option>
 								<option id="gnu.c.link.option.paths.956866828" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_small_printf_m0/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx/Debug}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/Debug}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.2037727020" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -106,13 +104,7 @@
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
-				<externalSettings containerId="CoOS;com.crt.advproject.config.lib.debug.1898781813" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
-					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/CoOS"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/CoOS/Debug"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="CoOS" srcPrefixMapping="" srcRootPath=""/>
-					</externalSetting>
-				</externalSettings>
+				<externalSettings containerId="CoOS;com.crt.advproject.config.lib.debug.1898781813" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
 				<externalSettings containerId="cmsis_lpc11xx;com.crt.advproject.config.lib.debug.1391050827" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/cmsis_lpc11xx"/>

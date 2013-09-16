@@ -1,5 +1,9 @@
 #include "proto_rf.h"
 
+#include <stdlib.h>
+
+#include "string_util.h"
+
 
 typedef enum RFID_PROTO_STATES_ {
     STATE_INITIAL,
@@ -56,8 +60,9 @@ int PROTO_RF_GetLength()
 }
 
 
-void PROTO_RF_StdTokenCallback(const char *buffer)
+uint8_t *PROTO_RF_GetData()
 {
+    return NULL;
 }
 
 
@@ -123,8 +128,8 @@ PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
                 }
                 else {
                     buffer[buffer_index] = '\0';
-                    address = strtoul(buffer, 0, 16);
-                    if (&& action == PROTO_RF_ACTION_READ)
+                    address = strtoul(buffer, 0, 0);
+                    if (action == PROTO_RF_ACTION_READ)
                         state = STATE_EXPECT_LENGTH;
                     else
                         state = STATE_EXPECT_DATA;
@@ -161,3 +166,50 @@ PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
 
     return RESULT_NEXT_CHAR;
 }
+
+
+static void ParseNumber(char c)
+{
+    static int state;
+
+    switch (state) {
+        case INITIAL:
+            if (c == '0') {
+                state = CAN_BE_OCT_OR_HEX;
+            }
+            else if (isdigit(c)) {
+                state = WAIT_FOR_DEC;
+            }
+            break;
+
+        case CAN_BE_OCT_OR_HEX:
+            if (c == 'x' || c == 'X') {
+                state = WAIT_FOR_HEX;
+                break;
+            }
+            /* skip to WAIT_FOR_OCT */
+
+        case WAIT_FOR_OCT:
+            if (!isdigit(c) || c >= '8') {
+                state = INITIAL;
+                return DONE;
+            }
+            break;
+
+        case WAIT_FOR_DEC:
+            if (!isdigit(c)) {
+                state = INITIAL;
+                return DONE;
+            }
+            break;
+
+        case WAIT_FOR_HEX:
+            if (!isxdigit(c)) {
+                state = INITIAL;
+                return DONE;
+            }
+            break;
+    }
+}
+
+

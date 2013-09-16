@@ -1,0 +1,13 @@
+    PORT0            PORT1                PORT2                 PORT3
+0   RESET                                 LCD_DATA0/SPI1_SSEL   
+1                                         LCD_DATA1/SPI1_SCK    
+2   SPI0_SSEL                             LCD_DATA2/SPI1_MISO   
+3                                         LCD_DATA3/SPI1_MOSI   
+4                    TIMER_ACT_LED        LCD_DATA4             
+5                                         LCD_DATA5             
+6   SPI0_SCK         RXD                  LCD_DATA6             X
+7   ACTIVITY_LED     TXD                  LCD_DATA7             X
+8   SPI0_MISO                             LCD_RS                X
+9   SPI0_MOSI        LED_RED              LCD_RW                X
+10                   LED_GREEN            LCD_E                 X
+11                   LED_BLUE             LCD_BACKLITE          X

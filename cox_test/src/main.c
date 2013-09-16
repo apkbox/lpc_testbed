@@ -124,17 +124,16 @@ void HandleInputChar(char c)
                         }
                     }
                     else if (PROTO_RF_GetAction() == PROTO_RF_ACTION_WRITE) {
-                            int addr = PROTO_RF_GetAddress();
-                            uint8_t *data = PROTO_RF_GetData();
-                            int len = PROTO_RF_GetLength();
-                            int same_address = PROTO_RF_GetMode() == PROTO_RF_MODE_SAME_ADDRESS;
+                        int addr = PROTO_RF_GetAddress();
+                        uint8_t *data = PROTO_RF_GetData();
+                        int len = PROTO_RF_GetLength();
+                        int same_address = PROTO_RF_GetMode() == PROTO_RF_MODE_SAME_ADDRESS;
 
-                            if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_PORT) {
-                                CL632_SpiWrite(addr, same_address, data, len);
-                            }
-                            else if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_MEMORY) {
-                                CL632_WriteE2(addr, data, len);
-                            }
+                        if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_PORT) {
+                            CL632_SpiWrite(addr, same_address, data, len);
+                        }
+                        else if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_MEMORY) {
+                            CL632_WriteE2(addr, data, len);
                         }
                     }
 

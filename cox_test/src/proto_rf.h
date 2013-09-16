@@ -1,6 +1,7 @@
 #ifndef PROTO_RF_H_
 #define PROTO_RF_H_
 
+#include <stdint.h>
 #include "protocol.h"
 
 #define RF_PROTOCOL_PREFIX   "RF"

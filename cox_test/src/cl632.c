@@ -180,9 +180,27 @@ void CL632_ReadE2(uint8_t address, uint8_t *data, uint8_t len)
 
     // Write to FIFO
     CL632_SpiWrite(0x02, params, 3);
+
     // Command
     CL632_SpiWriteByte(0x01, readE2);
 
     // Read result
     CL632_SpiRead(0x02, 1, data, len);
+}
+
+
+void CL632_WriteE2(uint8_t address, const uint8_t *data, uint8_t len)
+{
+    const uint8_t writeE2 = 0x01;
+    uint8_t params[2];
+
+    params[0] = address & 0xff;
+    params[1] = (address >> 8) & 0xff;
+
+    // Write to FIFO
+    CL632_SpiWrite(0x02, params, 2);
+    CL632_SpiWrite(0x02, data, len);
+
+    // Command
+    CL632_SpiWriteByte(0x01, writeE2);
 }

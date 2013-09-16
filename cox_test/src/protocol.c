@@ -30,7 +30,7 @@ static const ProtocolHandler *SelectModule(const char *name)
     const ProtocolHandler *p;
 
     for (p = sProtocolHandlers; p->id != 0; p++) {
-        if (CompareStringsNoCase(name, p->prefix) == 0)
+        if (strcmpi(name, p->prefix) == 0)
             return p;
     }
 

@@ -5,13 +5,7 @@
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="com.crt.advproject.config.lib.debug.1898781813">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.crt.advproject.config.lib.debug.1898781813" moduleId="org.eclipse.cdt.core.settings" name="Debug">
-				<externalSettings>
-					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/CoOS"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/CoOS/Debug"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="CoOS" srcPrefixMapping="" srcRootPath=""/>
-					</externalSetting>
-				</externalSettings>
+				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -27,7 +21,12 @@
 					<folderInfo id="com.crt.advproject.config.lib.debug.1898781813." name="/" resourcePath="">
 						<toolChain id="com.crt.advproject.toolchain.lib.debug.1859866413" name="Code Red MCU Tools" superClass="com.crt.advproject.toolchain.lib.debug">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.lib.debug.1475349968" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.lib.debug"/>
-							<builder buildPath="${workspace_loc:/CoOS}/Debug" id="com.crt.advproject.builder.lib.debug.1684884636" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.crt.advproject.builder.lib.debug"/>
+							<builder buildPath="${workspace_loc:/CoOS}/Debug" id="com.crt.advproject.builder.lib.debug.1684884636" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.crt.advproject.builder.lib.debug">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Release"/>
+								</outputEntries>
+							</builder>
 							<tool id="com.crt.advproject.cpp.lib.debug.1069468632" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.lib.debug"/>
 							<tool id="com.crt.advproject.gcc.lib.debug.2010542271" name="MCU C Compiler" superClass="com.crt.advproject.gcc.lib.debug">
 								<option id="com.crt.advproject.gcc.arch.912878237" name="Architecture" superClass="com.crt.advproject.gcc.arch" value="com.crt.advproject.gcc.target.cm0" valueType="enumerated"/>
@@ -40,9 +39,9 @@
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.1847433352" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.1735117978" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/kernel}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/portable}&quot;"/>
+									<listOptionValue builtIn="false" value="../CoOS/inc"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/kernel}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/portable}&quot;"/>
 								</option>
 								<option id="com.crt.advproject.gcc.lib.debug.option.optimization.level.851299156" name="Optimization Level" superClass="com.crt.advproject.gcc.lib.debug.option.optimization.level"/>
 								<inputType id="com.crt.advproject.compiler.input.260254970" superClass="com.crt.advproject.compiler.input"/>
@@ -52,6 +51,11 @@
 								<option id="com.crt.advproject.gas.thumb.1759705287" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
 								<option id="gnu.both.asm.option.flags.crt.974405225" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__ -DDEBUG -D__CODE_RED" valueType="string"/>
 								<option id="com.crt.advproject.gas.hdrlib.1726654693" name="Use headers for C library" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.codered" valueType="enumerated"/>
+								<option id="gnu.both.asm.option.include.paths.1462623345" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="../CoOS/inc"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/CoOS/kernel}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/CoOS/portable}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1116726574" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="com.crt.advproject.assembler.input.884643425" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
 							</tool>
@@ -59,10 +63,8 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="inc"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="kernel"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="portable"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="kernel"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="portable"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -105,9 +107,9 @@
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.1923350930" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.479523037" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/kernel}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/portable}&quot;"/>
+									<listOptionValue builtIn="false" value="../CoOS/inc"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/kernel}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/portable}&quot;"/>
 								</option>
 								<option id="com.crt.advproject.gcc.lib.release.option.optimization.level.469654698" name="Optimization Level" superClass="com.crt.advproject.gcc.lib.release.option.optimization.level" value="gnu.c.optimization.level.size" valueType="enumerated"/>
 								<inputType id="com.crt.advproject.compiler.input.2035475302" superClass="com.crt.advproject.compiler.input"/>
@@ -121,14 +123,6 @@
 								<inputType id="com.crt.advproject.assembler.input.52535291" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
 							</tool>
 							<tool id="com.crt.advproject.ar.lib.release.459723285" name="MCU Archiver" superClass="com.crt.advproject.ar.lib.release"/>
-						</toolChain>
-					</folderInfo>
-					<folderInfo id="com.crt.advproject.config.lib.release.381055725.1991583365" name="/" resourcePath="portable">
-						<toolChain id="com.crt.advproject.toolchain.lib.release.993535139" name="Code Red MCU Tools" superClass="com.crt.advproject.toolchain.lib.release" unusedChildren="">
-							<tool id="com.crt.advproject.cpp.lib.release.1959879979" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.lib.release.1657538545"/>
-							<tool id="com.crt.advproject.gcc.lib.release.463660396" name="MCU C Compiler" superClass="com.crt.advproject.gcc.lib.release.207845163"/>
-							<tool id="com.crt.advproject.gas.lib.release.757608794" name="MCU Assembler" superClass="com.crt.advproject.gas.lib.release.1370867746"/>
-							<tool id="com.crt.advproject.ar.lib.release.214535649" name="MCU Archiver" superClass="com.crt.advproject.ar.lib.release.459723285"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
