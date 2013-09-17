@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 
+#include "protocol.h"
 #include "string_util.h"
 
 
@@ -66,7 +67,7 @@ uint8_t *PROTO_RF_GetData()
 }
 
 
-PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
+enum PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
 {
     switch (state) {
         case STATE_INITIAL:
@@ -133,6 +134,7 @@ PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
                         state = STATE_EXPECT_LENGTH;
                     else
                         state = STATE_EXPECT_DATA;
+                    PROTO_InitBuffer();
                 }
             }
             else if (isxdigit(c)) {
@@ -156,6 +158,16 @@ PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
                 return RESULT_ACCEPT;
             }
             else {
+                enum PROTO_RESULT pr = PROTO_ParseNumber(c);
+                if (pr == RESULT_ACCEPT) {
+                    if (c == ':') {
+                        state = STATE_EXPECT_DATA;
+                    }
+                    else {
+                        state = STATE_INITIAL;
+                        return RESULT_ERROR;
+                    }
+                }
             }
             break;
 
@@ -166,50 +178,3 @@ PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
 
     return RESULT_NEXT_CHAR;
 }
-
-
-static void ParseNumber(char c)
-{
-    static int state;
-
-    switch (state) {
-        case INITIAL:
-            if (c == '0') {
-                state = CAN_BE_OCT_OR_HEX;
-            }
-            else if (isdigit(c)) {
-                state = WAIT_FOR_DEC;
-            }
-            break;
-
-        case CAN_BE_OCT_OR_HEX:
-            if (c == 'x' || c == 'X') {
-                state = WAIT_FOR_HEX;
-                break;
-            }
-            /* skip to WAIT_FOR_OCT */
-
-        case WAIT_FOR_OCT:
-            if (!isdigit(c) || c >= '8') {
-                state = INITIAL;
-                return DONE;
-            }
-            break;
-
-        case WAIT_FOR_DEC:
-            if (!isdigit(c)) {
-                state = INITIAL;
-                return DONE;
-            }
-            break;
-
-        case WAIT_FOR_HEX:
-            if (!isxdigit(c)) {
-                state = INITIAL;
-                return DONE;
-            }
-            break;
-    }
-}
-
-

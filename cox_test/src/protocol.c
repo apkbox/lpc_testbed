@@ -8,16 +8,27 @@
 static const ProtocolHandler *sProtocolHandlers = NULL;
 
 
-typedef enum {
+enum PROTO_STATE {
     STATE_START,
     STATE_WAIT_FOR_MODULE,
     STATE_HANDLE_PROTO_COMMAND,
     STATE_WAIT_FOR_EOL,
     STATE_ERROR
-} PROTO_STATE;
+};
 
 
-static PROTO_STATE state = STATE_START;
+enum ProtoSubstate {
+    SUBSTATE_INITIAL,
+    SUBSTATE_OCT_OR_HEX,
+    SUBSTATE_WAIT_FOR_OCT,
+    SUBSTATE_WAIT_FOR_DEC,
+    SUBSTATE_WAIT_FOR_HEX,
+    SUBSTATE_DONE
+};
+
+
+static enum PROTO_STATE state = STATE_START;
+static enum ProtoSubstate substate = SUBSTATE_INITIAL;
 static const ProtocolHandler *current_handler = NULL;
 
 #define BUFFER_LENGTH     16
@@ -38,6 +49,31 @@ static const ProtocolHandler *SelectModule(const char *name)
 }
 
 
+void PROTO_InitBuffer()
+{
+    buffer[0] = '\0';
+    buffer_ptr = 0;
+}
+
+int PROTO_BufferAppend(char c)
+{
+    if (buffer_ptr >= (BUFFER_LENGTH - 1)) {
+        buffer[buffer_ptr] = '\0';
+        return 0;
+    }
+    else {
+        buffer[buffer_ptr++] = c;
+        return 1;
+    }
+}
+
+const char *PROTO_GetBuffer()
+{
+    buffer[buffer_ptr] = '\0';
+    return buffer;
+}
+
+
 void PROTO_Reset()
 {
     state = STATE_START;
@@ -52,7 +88,7 @@ void PROTO_SetHandlers(const ProtocolHandler *protocols)
 }
 
 
-ProtocolHandler *PROTO_GetCurrentHandler()
+const ProtocolHandler *PROTO_GetCurrentHandler()
 {
     return current_handler;
 }
@@ -140,6 +176,74 @@ int PROTO_HandleInputCharacter(char c)
 
     return RESULT_NEXT_CHAR;
 }
+
+
+void PROTO_ResetSubparser()
+{
+    PROTO_InitBuffer();
+    substate = SUBSTATE_INITIAL;
+}
+
+
+
+enum PROTO_RESULT PROTO_ParseNumber(char c)
+{
+    switch (substate) {
+        case SUBSTATE_INITIAL:
+            if (!isdigit(c))
+                return RESULT_ACCEPT;
+
+            substate = SUBSTATE_WAIT_FOR_DEC;
+            if (c == '0')
+                substate = SUBSTATE_OCT_OR_HEX;
+
+            // TODO: Handle overflow
+            PROTO_BufferAppend(c);
+            break;
+
+        case SUBSTATE_OCT_OR_HEX:
+            if (c == 'x' || c == 'X') {
+                // TODO: Handle overflow
+                PROTO_BufferAppend(c);
+                substate = SUBSTATE_WAIT_FOR_HEX;
+                break;
+            }
+            /* skip to SUBSTATE_WAIT_FOR_OCT */
+
+        case SUBSTATE_WAIT_FOR_OCT:
+            if (!isdigit(c) || c >= '8')
+                return RESULT_ACCEPT;
+
+            // TODO: Handle overflow
+            PROTO_BufferAppend(c);
+            break;
+
+        case SUBSTATE_WAIT_FOR_DEC:
+            if (!isdigit(c)) {
+                state = SUBSTATE_INITIAL;
+                return RESULT_ACCEPT;
+            }
+
+            // TODO: Handle overflow
+            PROTO_BufferAppend(c);
+            break;
+
+        case SUBSTATE_WAIT_FOR_HEX:
+            if (!isxdigit(c)) {
+                state = SUBSTATE_INITIAL;
+                return RESULT_ACCEPT;
+            }
+
+            // TODO: Handle overflow
+            PROTO_BufferAppend(c);
+            break;
+    }
+
+    return RESULT_NEXT_CHAR;
+}
+
+
+
 
 
 /*

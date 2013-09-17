@@ -2,11 +2,11 @@
 #define __PROTOCOL_H__
 
 
-typedef enum PROTO_RESULT_ {
+enum PROTO_RESULT {
     RESULT_NEXT_CHAR,
     RESULT_ACCEPT,
     RESULT_ERROR
-} PROTO_RESULT;
+};
 
 
 /*
@@ -29,7 +29,7 @@ typedef enum COMMANDS_ {
 */
 
 
-typedef PROTO_RESULT (*ProtocolHandlerFunc)(char c);
+typedef enum PROTO_RESULT (*ProtocolHandlerFunc)(char c);
 
 
 typedef struct ProtocolHandler_ {
@@ -39,9 +39,12 @@ typedef struct ProtocolHandler_ {
 } ProtocolHandler;
 
 
+void PROTO_ResetSubparser();
+enum PROTO_RESULT PROTO_ParseNumber(char c);
+
 void PROTO_Reset();
 void PROTO_SetHandlers(const ProtocolHandler *protocols);
-ProtocolHandler *PROTO_GetCurrentHandler();
+const ProtocolHandler *PROTO_GetCurrentHandler();
 int PROTO_HandleInputCharacter(char c);
 
 

@@ -101,7 +101,7 @@ void HandleInputChar(char c)
         UART_PrintString("+ER\r\n");
     }
     else if( result == RESULT_ACCEPT ) {
-        ProtocolHandler *handler = PROTO_GetCurrentHandler();
+        const ProtocolHandler *handler = PROTO_GetCurrentHandler();
         if (handler) {
             switch (handler->id) {
                 case PROTO_ID_RFID:
@@ -120,7 +120,7 @@ void HandleInputChar(char c)
                                 CL632_ReadE2(addr, &b, 1);
                             }
 
-                            func_printf_nofloat(UART_WriteChar, " %02.2X", b);
+                            func_printf_nofloat(UART_WriteChar, " %02X", b);
                         }
                     }
                     else if (PROTO_RF_GetAction() == PROTO_RF_ACTION_WRITE) {

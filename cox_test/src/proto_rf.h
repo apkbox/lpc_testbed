@@ -23,7 +23,7 @@ typedef enum RFID_PROTO_MODE_ {
 
 
 
-PROTO_RESULT PROTO_RF_ProtocolHandler(char c);
+enum PROTO_RESULT PROTO_RF_ProtocolHandler(char c);
 RFID_PROTO_ACTION PROTO_RF_GetAction();
 RFID_PROTO_TARGET PROTO_RF_GetTarget();
 RFID_PROTO_MODE PROTO_RF_GetMode();
