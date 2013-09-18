@@ -22,8 +22,7 @@ enum ProtoSubstate {
     SUBSTATE_OCT_OR_HEX,
     SUBSTATE_WAIT_FOR_OCT,
     SUBSTATE_WAIT_FOR_DEC,
-    SUBSTATE_WAIT_FOR_HEX,
-    SUBSTATE_DONE
+    SUBSTATE_WAIT_FOR_HEX
 };
 
 
@@ -31,9 +30,9 @@ static enum PROTO_STATE state = STATE_START;
 static enum ProtoSubstate substate = SUBSTATE_INITIAL;
 static const ProtocolHandler *current_handler = NULL;
 
-#define BUFFER_LENGTH     16
-static char buffer[BUFFER_LENGTH];
-static int buffer_ptr = 0;
+#define PROTO_BUFFER_LENGTH     16
+static char proto_buffer[PROTO_BUFFER_LENGTH];
+static int proto_buffer_ptr = 0;
 
 
 static const ProtocolHandler *SelectModule(const char *name)
@@ -49,28 +48,33 @@ static const ProtocolHandler *SelectModule(const char *name)
 }
 
 
-void PROTO_InitBuffer()
+void PROTOBUF_Init()
 {
-    buffer[0] = '\0';
-    buffer_ptr = 0;
+    proto_buffer[0] = '\0';
+    proto_buffer_ptr = 0;
 }
 
-int PROTO_BufferAppend(char c)
+int PROTOBUF_Append(char c)
 {
-    if (buffer_ptr >= (BUFFER_LENGTH - 1)) {
-        buffer[buffer_ptr] = '\0';
+    if (proto_buffer_ptr >= (PROTO_BUFFER_LENGTH - 1)) {
+        proto_buffer[proto_buffer_ptr] = '\0';
         return 0;
     }
     else {
-        buffer[buffer_ptr++] = c;
+        proto_buffer[proto_buffer_ptr++] = c;
         return 1;
     }
 }
 
-const char *PROTO_GetBuffer()
+const char *PROTOBUF_GetBuffer()
 {
-    buffer[buffer_ptr] = '\0';
-    return buffer;
+    proto_buffer[proto_buffer_ptr] = '\0';
+    return proto_buffer;
+}
+
+int PROTOBUF_GetLength()
+{
+    return proto_buffer_ptr;
 }
 
 
@@ -78,7 +82,7 @@ void PROTO_Reset()
 {
     state = STATE_START;
     current_handler = NULL;
-    buffer_ptr = 0;
+    PROTO_ResetSubparser();
 }
 
 
@@ -94,8 +98,6 @@ const ProtocolHandler *PROTO_GetCurrentHandler()
 }
 
 
-// TODO: Make such that protocol handlers can reuse
-// common states like input number, input hex number, input list...
 int PROTO_HandleInputCharacter(char c)
 {
     c = toupper(c);
@@ -107,7 +109,7 @@ int PROTO_HandleInputCharacter(char c)
         case  STATE_START:
             current_handler = NULL;
             if (c == '@') {
-                buffer_ptr = 0;
+                PROTOBUF_Init();
                 state = STATE_WAIT_FOR_MODULE;
             }
             else if (!iscrlf(c)) {
@@ -116,19 +118,21 @@ int PROTO_HandleInputCharacter(char c)
             break;
 
         case STATE_WAIT_FOR_MODULE:
-            if (c == ':') {
-                buffer[buffer_ptr] = 0;
-                current_handler = SelectModule(buffer);
+            if (iscrlf(c)) {
+                state = STATE_ERROR;
+            }
+            else if (c == ':') {
+                current_handler = SelectModule(PROTOBUF_GetBuffer());
                 if (current_handler == NULL) {
                      state = STATE_ERROR;
                 }
 
+                current_handler->reset();
                 state = STATE_HANDLE_PROTO_COMMAND;
             }
-            else if (buffer_ptr < (BUFFER_LENGTH - 1))
-                buffer[buffer_ptr++] = c;
-            else
+            else if (!PROTOBUF_Append(c)) {
                 state = STATE_ERROR;
+            }
             break;
 
         case STATE_HANDLE_PROTO_COMMAND:
@@ -151,8 +155,10 @@ int PROTO_HandleInputCharacter(char c)
 
                 // Module must handle CRLF as accept.
                 // Multiline commands are not valid.
-                if (iscrlf(c))
+                if (iscrlf(c)) {
+                    state = STATE_START;
                     state = STATE_ERROR;
+                }
             }
             break;
 
@@ -180,10 +186,9 @@ int PROTO_HandleInputCharacter(char c)
 
 void PROTO_ResetSubparser()
 {
-    PROTO_InitBuffer();
+    PROTOBUF_Init();
     substate = SUBSTATE_INITIAL;
 }
-
 
 
 enum PROTO_RESULT PROTO_ParseNumber(char c)
@@ -191,58 +196,63 @@ enum PROTO_RESULT PROTO_ParseNumber(char c)
     switch (substate) {
         case SUBSTATE_INITIAL:
             if (!isdigit(c))
-                return RESULT_ACCEPT;
+                return RESULT_ERROR;
 
             substate = SUBSTATE_WAIT_FOR_DEC;
+
             if (c == '0')
                 substate = SUBSTATE_OCT_OR_HEX;
 
-            // TODO: Handle overflow
-            PROTO_BufferAppend(c);
+            if (!PROTOBUF_Append(c))
+                return RESULT_ERROR;
             break;
 
         case SUBSTATE_OCT_OR_HEX:
-            if (c == 'x' || c == 'X') {
-                // TODO: Handle overflow
-                PROTO_BufferAppend(c);
+            if (c == 'X') {
+                if (!PROTOBUF_Append(c))
+                    return RESULT_ERROR;
+
                 substate = SUBSTATE_WAIT_FOR_HEX;
                 break;
             }
             /* skip to SUBSTATE_WAIT_FOR_OCT */
 
         case SUBSTATE_WAIT_FOR_OCT:
-            if (!isdigit(c) || c >= '8')
+            if (!isdigit(c))
                 return RESULT_ACCEPT;
 
-            // TODO: Handle overflow
-            PROTO_BufferAppend(c);
+             if (c >= '8')
+                return RESULT_ERROR;
+
+             if (!PROTOBUF_Append(c))
+                 return RESULT_ERROR;
             break;
 
         case SUBSTATE_WAIT_FOR_DEC:
-            if (!isdigit(c)) {
-                state = SUBSTATE_INITIAL;
+            if (!isdigit(c))
                 return RESULT_ACCEPT;
-            }
 
-            // TODO: Handle overflow
-            PROTO_BufferAppend(c);
+            if (!PROTOBUF_Append(c))
+                return RESULT_ERROR;
             break;
 
         case SUBSTATE_WAIT_FOR_HEX:
             if (!isxdigit(c)) {
-                state = SUBSTATE_INITIAL;
-                return RESULT_ACCEPT;
+                // Check that we have '0x'
+                if (PROTOBUF_GetLength() > 2)
+                    return RESULT_ACCEPT;
+                else
+                    return RESULT_ERROR;
             }
 
             // TODO: Handle overflow
-            PROTO_BufferAppend(c);
+            if (!PROTOBUF_Append(c))
+                return RESULT_ERROR;
             break;
     }
 
     return RESULT_NEXT_CHAR;
 }
-
-
 
 
 
@@ -260,16 +270,7 @@ enum PROTO_RESULT PROTO_ParseNumber(char c)
 
 /*
 static int command = COMMAND_NONE;
-static ModuleHandlerFunc module = 0;
-#define BUFFER_LENGTH     32
-static char buffer[BUFFER_LENGTH];
-static int buffer_ptr = 0;
 
-static COMMAND sequence[MAX_SEQUENCE_LENGTH];
-static int sequence_ptr = 0;
-
-static int current_delay;
-static unsigned long current_color;
 static unsigned char backlite_power = 0;
 */
 
@@ -278,17 +279,6 @@ int PROTO_GetCommand()
 {
   return command;
 }
-
-COMMAND *PROTO_GetSequence()
-{
-  return sequence;
-}
-
-int PROTO_GetSequenceLength()
-{
-  return sequence_ptr;
-}
-
 
 unsigned char PROTO_GetBacklitePower()
 {
@@ -299,117 +289,58 @@ unsigned char PROTO_GetBacklitePower()
 
 
 /*
-        case STATE_PLUS:
-          if( c == '\n' || c == '\r' ) {
-            command = COMMAND_PLUS;
-            state = STATE_START;
-            return RESULT_ACCEPT;
-          }
-          else if( c == 'R' ) {
-            command = COMMAND_RESET;
-            state = STATE_WAIT_FOR_EOL;
-          }
-          else if (c == 'B') {
-              command = COMMAND_BACKLITE;
-              state = STATE_BL_INTENSITY;
-              buffer_ptr = 0;
-          }
-          else if( c == 'V' ) {
-            command = COMMAND_VERSION;
-            state = STATE_WAIT_FOR_EOL;
-          }
-          else if( c == 'S' ) {
-            sequence_ptr = 0;
-            state = STATE_EXPECT_PROFILE;
-          }
-          else if( c == 'C' ) {
-            command = COMMAND_CAPABILITIES;
-            state = STATE_WAIT_FOR_EOL;
-          }
-          else {
-            state = STATE_ERROR;
-          }
-          break;
+    case STATE_PLUS:
+      if( c == '\n' || c == '\r' ) {
+        command = COMMAND_PLUS;
+        state = STATE_START;
+        return RESULT_ACCEPT;
+      }
+      else if( c == 'R' ) {
+        command = COMMAND_RESET;
+        state = STATE_WAIT_FOR_EOL;
+      }
+      else if (c == 'B') {
+          command = COMMAND_BACKLITE;
+          state = STATE_BL_INTENSITY;
+          buffer_ptr = 0;
+      }
+      else if( c == 'V' ) {
+        command = COMMAND_VERSION;
+        state = STATE_WAIT_FOR_EOL;
+      }
+      else if( c == 'S' ) {
+        sequence_ptr = 0;
+        state = STATE_EXPECT_PROFILE;
+      }
+      else if( c == 'C' ) {
+        command = COMMAND_CAPABILITIES;
+        state = STATE_WAIT_FOR_EOL;
+      }
+      else {
+        state = STATE_ERROR;
+      }
+      break;
 
-        case STATE_EXPECT_PROFILE:
-          if( c == 'L' || c == 'T' ) {
-            state = STATE_DELAY;
-            buffer_ptr = 0;
-          }
-          else if( c == '\n' || c == '\r' ) {
-            if( sequence_ptr == 0 ) {
-              command = COMMAND_PRINT_SEQUENCE;
-            }
-            else {
-              command = COMMAND_SET_SEQUENCE;
-            }
-            state = STATE_START;
-            return RESULT_ACCEPT;
-          }
-          else
-            state = STATE_ERROR;
-          break;
-
-        case STATE_DELAY:
-          if( isdigit( c ) ) {
-            if( buffer_ptr >= BUFFER_LENGTH )
-              state = STATE_ERROR;
-            else
-              buffer[buffer_ptr ++] = c;
-          }
-          else if( c == '#' ) {
-            buffer[buffer_ptr] = '\0';
-            current_delay = atoi( buffer );
-            state = STATE_COLOR;
-            buffer_ptr = 0;
-          }
-          break;
-
-        case STATE_COLOR:
-          if( isxdigit( c ) ) {
-            buffer[buffer_ptr ++] = c;
-            if( buffer_ptr >= 6 ) {
-              buffer[buffer_ptr] = '\0';
-              current_color = strtoul( buffer, 0, 16 );
-
-              if( sequence_ptr >= MAX_SEQUENCE_LENGTH ) {
-                state = STATE_ERROR;
-              }
-              else {
-                sequence[sequence_ptr].interval = current_delay;
-                sequence[sequence_ptr].color.red = ( current_color >> 16 ) & 0xFF;
-                sequence[sequence_ptr].color.green = ( current_color >> 8 ) & 0xFF;
-                sequence[sequence_ptr].color.blue = current_color & 0xFF;
-                sequence_ptr ++;
-                state = STATE_EXPECT_PROFILE;
-              }
-            }
-          }
-          else {
-            state = STATE_ERROR;
-          }
-          break;
-
-        case STATE_BL_INTENSITY:
-          if (c == '+' && buffer_ptr == 0) {
-              backlite_power = 0xff;
-              state = STATE_WAIT_FOR_EOL;
-          }
-          else if (c == '-' && buffer_ptr == 0) {
-              backlite_power = 0x00;
-              state = STATE_WAIT_FOR_EOL;
-          }
-          else if (isxdigit(c)) {
-            buffer[buffer_ptr ++] = c;
-            if( buffer_ptr >= 2 ) {
-              buffer[buffer_ptr] = '\0';
-              backlite_power = strtoul(buffer, 0, 16);
-              state = STATE_WAIT_FOR_EOL;
-            }
-          }
-          else {
-            state = STATE_ERROR;
-          }
-          break;
-          */
+    case STATE_BL_INTENSITY:
+      if (c == '+' && buffer_ptr == 0) {
+          backlite_power = 0xff;
+          state = STATE_WAIT_FOR_EOL;
+      }
+      else if (c == '-' && buffer_ptr == 0) {
+          backlite_power = 0x00;
+          state = STATE_WAIT_FOR_EOL;
+      }
+      else if (isxdigit(c)) {
+        buffer[buffer_ptr ++] = c;
+        if( buffer_ptr >= 2 ) {
+          buffer[buffer_ptr] = '\0';
+          backlite_power = strtoul(buffer, 0, 16);
+          state = STATE_WAIT_FOR_EOL;
+        }
+      }
+      else {
+        state = STATE_ERROR;
+      }
+      break;
+      */
 

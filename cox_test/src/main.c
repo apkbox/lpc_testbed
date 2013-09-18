@@ -26,6 +26,7 @@
 
 #include "protocol.h"
 #include "proto_rf.h"
+#include "proto_rgb.h"
 
 #include "ks0066.h"
 #include "cl632.h"
@@ -81,12 +82,14 @@ int UART_ReadChar()
 static uint8_t backlite_power = 0;
 
 enum {
-    PROTO_ID_RFID = 1
+    PROTO_ID_RFID = 1,
+    PROTO_ID_RGB = 2
 };
 
 
 static const ProtocolHandler g_protocol_handlers[] = {
-     { PROTO_ID_RFID, RF_PROTOCOL_PREFIX, PROTO_RF_ProtocolHandler },
+     { PROTO_ID_RFID, RF_PROTOCOL_PREFIX, PROTO_RF_ProtocolHandler, PROTO_RF_ProtocolReset },
+     { PROTO_ID_RGB, RGB_PROTOCOL_PREFIX, PROTO_RGB_ProtocolHandler, PROTO_RGB_ProtocolReset },
      { 0, NULL, NULL }
 };
 
@@ -106,19 +109,19 @@ void HandleInputChar(char c)
             switch (handler->id) {
                 case PROTO_ID_RFID:
                     if (PROTO_RF_GetAction() == PROTO_RF_ACTION_READ) {
-                        for (i = 0; i < PROTO_RF_GetLength(); i++) {
+                        int len = PROTO_RF_GetLength();
+                        func_printf_nofloat(UART_WriteChar, "%02X: ", len);
+                        for (i = 0; i < len; i++) {
                             int addr = PROTO_RF_GetAddress();
                             uint8_t b;
 
-                            if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_PORT) {
-                                if (PROTO_RF_GetMode() == PROTO_RF_MODE_INCREMENT_ADDRESS)
-                                    addr += i;
+                            if (PROTO_RF_GetMode() == PROTO_RF_MODE_INCREMENT_ADDRESS)
+                                addr += i;
 
+                            if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_PORT)
                                 b = CL632_SpiReadByte(addr);
-                            }
-                            else if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_MEMORY) {
+                            else if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_MEMORY)
                                 CL632_ReadE2(addr, &b, 1);
-                            }
 
                             func_printf_nofloat(UART_WriteChar, " %02X", b);
                         }
@@ -135,6 +138,32 @@ void HandleInputChar(char c)
                         else if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_MEMORY) {
                             CL632_WriteE2(addr, data, len);
                         }
+                    }
+
+                    UART_PrintString("\r\n");
+                    break;
+
+                case PROTO_ID_RGB:
+                    switch (PROTO_RGB_GetCommand()) {
+                        case PROTO_RGB_COMMAND_CAPABILITIES:
+                            UART_PrintString("+CAP: RGB,TRAN");
+                            break;
+
+                        case PROTO_RGB_COMMAND_PRINT_SEQUENCE:
+                            UART_PrintString("+S");
+                            for (i = 0; i < SEQ_GetSequenceLength(); i++) {
+                                const COMMAND *cmd = &(SEQ_GetSequence()[i]);
+                                func_printf_nofloat(UART_WriteChar, " L%d#%02X%02X%02X",
+                                        cmd->interval, cmd->color.red, cmd->color.green, cmd->color.blue);
+                            }
+                            break;
+
+                        case PROTO_RGB_COMMAND_SET_SEQUENCE:
+                            SEQ_SetSequence(PROTO_RGB_GetSequence(), PROTO_RGB_GetSequenceLength());
+                            UART_PrintString("+OK");
+                            break;
+
+
                     }
 
                     UART_PrintString("\r\n");
@@ -165,52 +194,6 @@ void HandleInputChar(char c)
             case COMMAND_VERSION:
                 UART_PrintString( "+V:1\r\n" );
                 break;
-
-            case COMMAND_CAPABILITIES:
-                UART_PrintString( "+CAP: RGB,TRAN\r\n" );
-                break;
-
-            case COMMAND_PRINT_SEQUENCE:
-                UART_PrintString("+S");
-                for (i = 0; i < SEQ_GetSequenceLength(); i++) {
-                    const COMMAND *cmd = &(SEQ_GetSequence()[i]);
-                    func_printf_nofloat(UART_WriteChar, " L%d#%02.2X%02.2X%02.2X",
-                            cmd->interval, cmd->color.red, cmd->color.green, cmd->color.blue);
-                }
-                UART_PrintString( "\r\n" );
-                break;
-
-            case COMMAND_SET_SEQUENCE:
-                SEQ_SetSequence( PROTO_GetSequence(), PROTO_GetSequenceLength() ); ;
-                UART_PrintString( "+OK\r\n" );
-                break;
-
-            case COMMAND_READ_SPI: {
-                int i = 0;
-                uint8_t b;
-
-                UART_PrintString("REGISTERS BEFORE:");
-                for (i = 0; i < 0x40; i++) {
-                    b = CL632_SpiReadByte(i);
-                    func_printf_nofloat(UART_WriteChar, " %02.2X", b);
-                }
-                UART_PrintString("\r\n");
-
-                UART_PrintString("EEPROM:");
-                for (i = 0; i < 0x08; i++) {
-                    uint8_t b;
-                    CL632_ReadE2(i, &b, 1);
-                    func_printf_nofloat(UART_WriteChar, " %02.2X", b);
-                }
-                UART_PrintString("\r\n");
-
-                UART_PrintString("REGISTERS AFTER:");
-                for (i = 0; i < 0x40; i++) {
-                    b = CL632_SpiReadByte(i);
-                    func_printf_nofloat(UART_WriteChar, " %02.2X", b);
-                }
-
-                UART_PrintString("\r\n");
             }
         }
         */

@@ -29,6 +29,7 @@ typedef enum COMMANDS_ {
 */
 
 
+typedef void (*ProtocolResetFunc)();
 typedef enum PROTO_RESULT (*ProtocolHandlerFunc)(char c);
 
 
@@ -36,7 +37,14 @@ typedef struct ProtocolHandler_ {
     int id;
     char *prefix;
     ProtocolHandlerFunc handler;
+    ProtocolResetFunc reset;
 } ProtocolHandler;
+
+
+void PROTOBUF_Init();
+int PROTOBUF_Append(char c);
+const char *PROTOBUF_GetBuffer();
+int PROTOBUF_GetLength();
 
 
 void PROTO_ResetSubparser();
