@@ -129,6 +129,9 @@ void HandleInputChar(char c)
                     else if (PROTO_SYS_GetCommand() == PROTO_SYS_COMMAND_VERSION) {
                         PrintVersionString(UART_WriteChar);
                     }
+                    else {
+                        UART_PrintString("NA");
+                    }
 
                     UART_PrintString("\r\n");
                     break;
@@ -171,6 +174,11 @@ void HandleInputChar(char c)
                         else if (PROTO_RF_GetTarget() == PROTO_RF_TARGET_MEMORY) {
                             CL632_WriteE2(addr, data, len);
                         }
+
+                        UART_PrintString("OK");
+                    }
+                    else {
+                        UART_PrintString("NA");
                     }
 
                     UART_PrintString("\r\n");
@@ -196,7 +204,9 @@ void HandleInputChar(char c)
                             UART_PrintString("+OK");
                             break;
 
-
+                        default:
+                            UART_PrintString("NA");
+                            break;
                     }
 
                     UART_PrintString("\r\n");
