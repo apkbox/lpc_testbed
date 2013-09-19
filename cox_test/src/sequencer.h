@@ -1,8 +1,7 @@
 #if !defined( __SEQUENCER_H__ )
 #define __SEQUENCER_H__
 
-typedef unsigned char BYTE;
-typedef unsigned short WORD;
+#include <stdint.h>
 
 #define MAX_SEQUENCE_LENGTH     32
 
@@ -16,14 +15,14 @@ typedef unsigned short WORD;
 #define TRANSITION_EXP            3
 
 typedef struct RGBCOLOR_ {
-  BYTE    red;
-  BYTE    green;
-  BYTE    blue;
+  uint8_t    red;
+  uint8_t    green;
+  uint8_t    blue;
 } RGBCOLOR;
 
 typedef struct COMMAND_ {
-  BYTE     transition: 2;
-  BYTE     interval: 6;
+  int  transition: 2;
+  int  interval: 6;
   RGBCOLOR color;
 } COMMAND;
 

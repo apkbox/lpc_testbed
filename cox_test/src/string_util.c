@@ -86,6 +86,3 @@ unsigned long string_to_hex(char *str)
 
     return v;
 }
-
-
-

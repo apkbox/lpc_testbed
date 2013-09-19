@@ -109,7 +109,7 @@ uint8_t CL632_SpiReadByte(uint8_t address)
 }
 
 
-void CL632_SpiWrite(uint8_t address, const uint8_t *data, uint16_t len)
+void CL632_SpiWrite(uint8_t address, uint8_t same_address, const uint8_t *data, uint16_t len)
 {
     if (len == 0)
         return;
@@ -122,6 +122,17 @@ void CL632_SpiWrite(uint8_t address, const uint8_t *data, uint16_t len)
     SSP_SendData(CL632_SPI, (address & 0x3F) << 1);
     while (len-- > 0) {
         SSP_SendData(CL632_SPI, *data++);
+        if (!len)
+            break;
+
+        if (!same_address) {
+            CL632_SpiSselStop();
+            delay_ns(100);
+            CL632_SpiSselStart();
+            address++;
+            SSP_SendData(CL632_SPI, (address & 0x3F) << 1);
+        }
+
         CL632_SpiWaitForTxReady();
     }
 
@@ -149,6 +160,7 @@ void CL632_SpiRead(uint8_t address, uint8_t same_address, uint8_t *data, uint16_
     while (len-- > 1) {
         if (!same_address)
             address++;
+
         SSP_SendData(CL632_SPI, (address & 0x3F) << 1);
         CL632_SpiWaitForRx();
         *data++ = SSP_ReceiveData(CL632_SPI);
@@ -179,7 +191,7 @@ void CL632_ReadE2(uint8_t address, uint8_t *data, uint8_t len)
     params[2] = len;
 
     // Write to FIFO
-    CL632_SpiWrite(0x02, params, 3);
+    CL632_SpiWrite(0x02, 1, params, 3);
 
     // Command
     CL632_SpiWriteByte(0x01, readE2);
@@ -198,8 +210,8 @@ void CL632_WriteE2(uint8_t address, const uint8_t *data, uint8_t len)
     params[1] = (address >> 8) & 0xff;
 
     // Write to FIFO
-    CL632_SpiWrite(0x02, params, 2);
-    CL632_SpiWrite(0x02, data, len);
+    CL632_SpiWrite(0x02, 1, params, 2);
+    CL632_SpiWrite(0x02, 1, data, len);
 
     // Command
     CL632_SpiWriteByte(0x01, writeE2);

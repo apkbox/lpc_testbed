@@ -1,13 +1,14 @@
 
-#include <string.h>
-
 #include "sequencer.h"
+
+#include <stdint.h>
+#include <string.h>
 
 /*
 Command:
   Transition
     7-6  Transition type (TODO: 0 interval == Sharp)
-         00 - Sharp
+         00 - Step
          01 - Linear ramp
          10 - Logarithmic ramp
          11 - Exponential ramp
@@ -22,9 +23,9 @@ Command:
 */
 
 typedef struct RGBCOLOR16_ {
-  WORD    red;
-  WORD    green;
-  WORD    blue;
+  uint16_t    red;
+  uint16_t    green;
+  uint16_t    blue;
 } RGBCOLOR16;
 
 static const COMMAND default_sequence[] = { 
@@ -107,7 +108,7 @@ int SEQ_GetSequenceLength()
 }
 
 
-// Executes on every interval.
+/* Executes on every interval. */
 int SEQ_Tick()
 {
   if( current_command == 0 )

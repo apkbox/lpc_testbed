@@ -39,7 +39,6 @@
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.1847433352" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.include.paths.1735117978" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="../CoOS/inc"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/kernel}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/portable}&quot;"/>
 								</option>
@@ -51,11 +50,7 @@
 								<option id="com.crt.advproject.gas.thumb.1759705287" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
 								<option id="gnu.both.asm.option.flags.crt.974405225" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__ -DDEBUG -D__CODE_RED" valueType="string"/>
 								<option id="com.crt.advproject.gas.hdrlib.1726654693" name="Use headers for C library" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.codered" valueType="enumerated"/>
-								<option id="gnu.both.asm.option.include.paths.1462623345" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="../CoOS/inc"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/CoOS/kernel}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/CoOS/portable}&quot;"/>
-								</option>
+								<option id="gnu.both.asm.option.include.paths.1462623345" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1116726574" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="com.crt.advproject.assembler.input.884643425" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
 							</tool>

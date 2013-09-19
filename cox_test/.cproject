@@ -39,11 +39,15 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_small_printf_m0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/kernel}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_small_printf_m0/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/kernel}&quot;"/>
 								</option>
+								<option id="gnu.c.compiler.option.warnings.pedantic.1239122787" name="Pedantic (-pedantic)" superClass="gnu.c.compiler.option.warnings.pedantic" value="false" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.warnings.extrawarn.933579212" name="Extra warnings (-Wextra)" superClass="gnu.c.compiler.option.warnings.extrawarn" value="false" valueType="boolean"/>
+								<option id="gnu.c.compiler.option.warnings.wconversion.1888923816" name="Implicit conversion warnings (-Wconversion)" superClass="gnu.c.compiler.option.warnings.wconversion" value="false" valueType="boolean"/>
+								<option id="com.crt.advproject.c.misc.dialect.595422166" name="C Dialect" superClass="com.crt.advproject.c.misc.dialect" value="com.crt.advproject.misc.dialect.default" valueType="enumerated"/>
 								<inputType id="com.crt.advproject.compiler.input.1645138450" superClass="com.crt.advproject.compiler.input"/>
 							</tool>
 							<tool id="com.crt.advproject.gas.exe.debug.1128755362" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.debug">
@@ -74,16 +78,16 @@
 								<option id="com.crt.advproject.link.crpenable.775525495" name="Enable Code Read Protect" superClass="com.crt.advproject.link.crpenable"/>
 								<option id="com.crt.advproject.link.gcc.multicore.slave.1540778298" name="Multicore slave" superClass="com.crt.advproject.link.gcc.multicore.slave"/>
 								<option id="gnu.c.link.option.libs.182878317" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="lib_small_printf_m0"/>
-									<listOptionValue builtIn="false" value="CoOS"/>
-									<listOptionValue builtIn="false" value="lpc111x_lib"/>
-									<listOptionValue builtIn="false" value="cmsis_lpc11xx"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lib_small_printf_m0"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc111x_lib"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="cmsis_lpc11xx"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="CoOS"/>
 								</option>
 								<option id="gnu.c.link.option.paths.956866828" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_small_printf_m0/Debug}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/Debug}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.2037727020" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -104,7 +108,6 @@
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
-				<externalSettings containerId="CoOS;com.crt.advproject.config.lib.debug.1898781813" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
 				<externalSettings containerId="cmsis_lpc11xx;com.crt.advproject.config.lib.debug.1391050827" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/cmsis_lpc11xx"/>
@@ -126,6 +129,7 @@
 						<entry flags="RESOLVED" kind="libraryFile" name="lib_small_printf_m0" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
+				<externalSettings containerId="CoOS;com.crt.advproject.config.lib.debug.1898781813" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
 			</storageModule>
 		</cconfiguration>
 		<cconfiguration id="com.crt.advproject.config.exe.release.1124995306">
@@ -161,14 +165,14 @@
 								<option id="gnu.c.compiler.option.misc.other.448358299" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="com.crt.advproject.gcc.exe.release.option.optimization.level.641519644" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.release.option.optimization.level" value="gnu.c.optimization.level.size" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.514674597" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_small_printf_m0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/kernel}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_small_printf_m0/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/kernel}&quot;"/>
 								</option>
 								<inputType id="com.crt.advproject.compiler.input.429616354" superClass="com.crt.advproject.compiler.input"/>
 							</tool>
@@ -178,10 +182,10 @@
 								<option id="gnu.both.asm.option.flags.crt.887693823" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__ -DNDEBUG -D__CODE_RED" valueType="string"/>
 								<option id="com.crt.advproject.gas.hdrlib.1415733709" name="Use headers for C library" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.codered" valueType="enumerated"/>
 								<option id="gnu.both.asm.option.include.paths.1877657467" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_small_printf_m0}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.158161613" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="com.crt.advproject.assembler.input.1525780073" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
@@ -200,16 +204,16 @@
 								<option id="com.crt.advproject.link.gcc.hdrlib.2057183900" name="Use C library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.none" valueType="enumerated"/>
 								<option id="com.crt.advproject.link.crpenable.691572739" name="Enable Code Read Protect" superClass="com.crt.advproject.link.crpenable"/>
 								<option id="gnu.c.link.option.paths.1272132855" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lib_small_printf_m0/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/lpc111x_lib/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/cmsis_lpc11xx/Release}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CoOS/Release}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.libs.604448849" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="CoOS"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lib_small_printf_m0"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="lpc111x_lib"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="cmsis_lpc11xx"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="CoOS"/>
 								</option>
 								<option id="com.crt.advproject.link.gcc.multicore.slave.1654234126" name="Multicore slave" superClass="com.crt.advproject.link.gcc.multicore.slave"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1206324800" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
@@ -225,13 +229,6 @@
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
-				<externalSettings containerId="CoOS;com.crt.advproject.config.lib.release.381055725" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
-					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/CoOS"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/CoOS/Release"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="CoOS" srcPrefixMapping="" srcRootPath=""/>
-					</externalSetting>
-				</externalSettings>
 				<externalSettings containerId="cmsis_lpc11xx;com.crt.advproject.config.lib.release.915246243" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/cmsis_lpc11xx"/>
@@ -251,6 +248,13 @@
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/lib_small_printf_m0"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/lib_small_printf_m0/Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="lib_small_printf_m0" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<externalSettings containerId="CoOS;com.crt.advproject.config.lib.release.381055725" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/CoOS"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/CoOS/Release"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="CoOS" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
 			</storageModule>

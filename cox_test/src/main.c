@@ -27,9 +27,15 @@
 #include "protocol.h"
 #include "proto_rf.h"
 #include "proto_rgb.h"
+#include "proto_sys.h"
 
 #include "ks0066.h"
 #include "cl632.h"
+
+#define VERSION_MAJOR     1
+#define VERSION_MINOR     0
+#define VERSION_TIMESTAMP (__DATE__ " " __TIME__)
+
 
 
 #define RED_SET_PIN()     IOCON_SetPinFunc(IOCON_PIO1_9, PIO1_9_FUN_PIO)
@@ -74,6 +80,11 @@ int UART_ReadChar()
     return UART_ReceiveData(LPC_UART);
 }
 
+static void PrintVersionString(const fp_printf_write_func printf_write)
+{
+    func_printf_nofloat(printf_write, "+V:%d.%d %s", VERSION_MAJOR, VERSION_MINOR, VERSION_TIMESTAMP);
+}
+
 
 #define ARRAYSIZE(array)      (sizeof(array)/sizeof(array[0]))
 #define GetStackTop(stack)    (&stack[ARRAYSIZE(stack)-1])
@@ -83,14 +94,16 @@ static uint8_t backlite_power = 0;
 
 enum {
     PROTO_ID_RFID = 1,
-    PROTO_ID_RGB = 2
+    PROTO_ID_RGB = 2,
+    PROTO_ID_SYS = 3
 };
 
 
 static const ProtocolHandler g_protocol_handlers[] = {
      { PROTO_ID_RFID, RF_PROTOCOL_PREFIX, PROTO_RF_ProtocolHandler, PROTO_RF_ProtocolReset },
      { PROTO_ID_RGB, RGB_PROTOCOL_PREFIX, PROTO_RGB_ProtocolHandler, PROTO_RGB_ProtocolReset },
-     { 0, NULL, NULL }
+     { PROTO_ID_SYS, SYS_PROTOCOL_PREFIX, PROTO_SYS_ProtocolHandler, PROTO_SYS_ProtocolReset },
+     { 0, NULL, NULL, NULL }
 };
 
 
@@ -107,6 +120,26 @@ void HandleInputChar(char c)
         const ProtocolHandler *handler = PROTO_GetCurrentHandler();
         if (handler) {
             switch (handler->id) {
+                case PROTO_ID_SYS:
+                    if (PROTO_SYS_GetCommand() == PROTO_SYS_COMMAND_RESET) {
+                        UART_PrintString("+RST\r\n");
+                        while(UART_CheckBusy(LPC_UART) != RESET);
+                        NVIC_SystemReset();
+                    }
+                    else if (PROTO_SYS_GetCommand() == PROTO_SYS_COMMAND_VERSION) {
+                        PrintVersionString(UART_WriteChar);
+                    }
+
+                    UART_PrintString("\r\n");
+                    break;
+
+                /*
+                    case COMMAND_BACKLITE:
+                        UART_PrintString( "+BL\r\n" );
+                        backlite_power = PROTO_GetBacklitePower();
+                        break;
+                */
+
                 case PROTO_ID_RFID:
                     if (PROTO_RF_GetAction() == PROTO_RF_ACTION_READ) {
                         int len = PROTO_RF_GetLength();
@@ -170,33 +203,6 @@ void HandleInputChar(char c)
                     break;
             }
         }
-        /*
-        switch( PROTO_GetCommand() ) {
-            case COMMAND_PLUS:
-                UART_PrintString( "+OK\r\n" );
-                break;
-
-            case COMMAND_MINUS:
-                UART_PrintString( "+ER\r\n" );
-                break;
-
-            case COMMAND_RESET:
-                UART_PrintString( "+RST\r\n" );
-                while(UART_CheckBusy(LPC_UART) != RESET);
-                NVIC_SystemReset();
-                break;
-
-            case COMMAND_BACKLITE:
-                UART_PrintString( "+BL\r\n" );
-                backlite_power = PROTO_GetBacklitePower();
-                break;
-
-            case COMMAND_VERSION:
-                UART_PrintString( "+V:1\r\n" );
-                break;
-            }
-        }
-        */
     }
 }
 
@@ -207,6 +213,8 @@ OS_STK uartTaskStack[512];
 
 void uartTask(void *data)
 {
+    data = data;
+
     while (1) {
         uint32_t bytes_received;
         uint8_t c;
@@ -214,7 +222,6 @@ void uartTask(void *data)
         bytes_received = UART_Receive(LPC_UART, &c, 1, NONE_BLOCKING);
         if (bytes_received > 0) {
             HandleInputChar(c);
-            //UART_Send(LPC_UART, &c, 1, BLOCKING);
         }
     }
 }
@@ -225,6 +232,8 @@ OS_STK activityTaskStack[128];
 
 void activityTask(void *data)
 {
+    data = data;
+
     while (1) {
         GPIO_SetBits(ACTIVITY_PORT, ACTIVITY_PIN);
         CoTimeDelay(0, 0, 1, 0);
@@ -430,10 +439,11 @@ int main()
     else
         UART_PrintString("+RST\r\n");
 
-    UART_PrintString("+VERINFO: " __DATE__ " " __TIME__ "\r\n");
+    PrintVersionString(UART_WriteChar);
+    UART_PrintString("\r\n");
     func_printf_nofloat(UART_WriteChar, "+COOS: %d\r\n", CoGetOSVersion());
 
-    KS0066_WriteString("VER: " __DATE__ " " __TIME__, KS0066_WRAP_FLAG);
+    KS0066_WriteString("V: " __DATE__ " " __TIME__, KS0066_WRAP_FLAG);
 
     CoStartOS();
 

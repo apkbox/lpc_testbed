@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "protocol.h"
+#include "protobuf.h"
 #include "string_util.h"
 
 
@@ -22,6 +23,9 @@ static RFID_PROTO_TARGET target;
 static RFID_PROTO_MODE mode;
 static int address;
 static int length;
+
+#define DATA_BUFFER_LEN    64
+static uint8_t data[DATA_BUFFER_LEN];
 
 
 RFID_PROTO_ACTION PROTO_RF_GetAction()
@@ -56,7 +60,7 @@ int PROTO_RF_GetLength()
 
 uint8_t *PROTO_RF_GetData()
 {
-    return NULL;
+    return data;
 }
 
 
@@ -124,17 +128,20 @@ enum PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
                     return RESULT_ERROR;
                 }
                 else {
-                    address = strtoul(PROTOBUF_GetBuffer(), 0, 0);
-                    if (action == PROTO_RF_ACTION_READ)
+                    address = strtoul(PROTOBUF_GetBuffer(), NULL, 0);
+                    if (action == PROTO_RF_ACTION_READ) {
                         state = STATE_EXPECT_LENGTH;
-                    else
+                    }
+                    else {
                         state = STATE_EXPECT_DATA;
+                        length = 0;
+                    }
 
                     PROTO_ResetSubparser();
                 }
             }
             else if (iscrlf(c) && PROTOBUF_GetLength() > 0 && action == PROTO_RF_ACTION_READ) {
-                address = strtoul(PROTOBUF_GetBuffer(), 0, 0);
+                address = strtoul(PROTOBUF_GetBuffer(), NULL, 0);
                 length = 1;
                 state = STATE_INITIAL;
                 return RESULT_ACCEPT;
@@ -165,8 +172,31 @@ enum PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
             break;
 
         case STATE_EXPECT_DATA:
-            state = STATE_INITIAL;
-            return RESULT_ACCEPT;
+            result = PROTO_ParseNumber(c);
+            if (result == RESULT_ACCEPT) {
+                if (length >= DATA_BUFFER_LEN) {
+                    state = STATE_INITIAL;
+                    return RESULT_ERROR;
+                }
+
+                data[length++] = strtoul(PROTOBUF_GetBuffer(), NULL, 0);
+                PROTO_ResetSubparser();
+
+                if (iscrlf(c)) {
+                    state = STATE_INITIAL;
+                    return RESULT_ACCEPT;
+                }
+                else if (c != ' ' && c != ',') {
+                    state = STATE_INITIAL;
+                    return RESULT_ERROR;
+                }
+            }
+            else if (result == RESULT_ERROR) {
+                state = STATE_INITIAL;
+                return RESULT_ERROR;
+            }
+            break;
+
     }
 
     return RESULT_NEXT_CHAR;

@@ -9,26 +9,6 @@ enum PROTO_RESULT {
 };
 
 
-/*
-typedef enum COMMANDS_ {
-    COMMAND_NONE,
-    COMMAND_RESET,
-    COMMAND_PLUS,
-    COMMAND_MINUS,
-    COMMAND_BACKLITE,
-    COMMAND_VERSION,
-    COMMAND_CAPABILITIES,
-    COMMAND_PRINT_SEQUENCE,
-    COMMAND_SET_SEQUENCE,
-    COMMAND_READ_SPI,
-    COMMAND_READ_PORT,
-    COMMAND_WRITE_PORT,
-    COMMAND_READ_EEPROM,
-    COMMAND_WRITE_EEPROM
-} COMMANDS;
-*/
-
-
 typedef void (*ProtocolResetFunc)();
 typedef enum PROTO_RESULT (*ProtocolHandlerFunc)(char c);
 
@@ -39,12 +19,6 @@ typedef struct ProtocolHandler_ {
     ProtocolHandlerFunc handler;
     ProtocolResetFunc reset;
 } ProtocolHandler;
-
-
-void PROTOBUF_Init();
-int PROTOBUF_Append(char c);
-const char *PROTOBUF_GetBuffer();
-int PROTOBUF_GetLength();
 
 
 void PROTO_ResetSubparser();

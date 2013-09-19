@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "protocol.h"
+#include "protobuf.h"
 #include "string_util.h"
 
 
@@ -41,6 +42,9 @@ int PROTO_RGB_GetSequenceLength()
 
 enum PROTO_RESULT PROTO_RGB_ProtocolHandler(char c)
 {
+    if (c == ' ')
+        return RESULT_NEXT_CHAR;
+
     switch (state) {
         case STATE_INITIAL:
             if (c == 'S') {

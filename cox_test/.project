@@ -4,9 +4,9 @@
 	<comment></comment>
 	<projects>
 		<project>cmsis_lpc11xx</project>
-		<project>CoOS</project>
-		<project>lib_small_printf_m0</project>
 		<project>lpc111x_lib</project>
+		<project>lib_small_printf_m0</project>
+		<project>CoOS</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
