@@ -11,6 +11,7 @@ static const ProtocolHandler *sProtocolHandlers = NULL;
 
 enum PROTO_STATE {
     STATE_START,
+    STATE_WAIT_FOR_T,
     STATE_WAIT_FOR_MODULE,
     STATE_HANDLE_PROTO_COMMAND,
     STATE_WAIT_FOR_EOL,
@@ -20,6 +21,13 @@ enum PROTO_STATE {
 
 static enum PROTO_STATE state = STATE_START;
 static const ProtocolHandler *current_handler = NULL;
+
+static const ProtocolHandler g_default_handler = {
+        PROTO_ID_DEFAULT,
+        NULL,
+        NULL,
+        NULL
+};
 
 
 static const ProtocolHandler *SelectModule(const char *name)
@@ -69,7 +77,20 @@ int PROTO_HandleInputCharacter(char c)
                 PROTOBUF_Init();
                 state = STATE_WAIT_FOR_MODULE;
             }
+            else if (c == 'A') {
+                state = STATE_WAIT_FOR_T;
+            }
             else if (!iscrlf(c) && c != ' ') {
+                state = STATE_ERROR;
+            }
+            break;
+
+        case STATE_WAIT_FOR_T:
+            if (c == 'T') {
+                current_handler = &g_default_handler;
+                state = STATE_WAIT_FOR_EOL;
+            }
+            else {
                 state = STATE_ERROR;
             }
             break;

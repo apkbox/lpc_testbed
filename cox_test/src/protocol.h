@@ -9,6 +9,9 @@ enum PROTO_RESULT {
 };
 
 
+#define PROTO_ID_DEFAULT    0
+
+
 typedef void (*ProtocolResetFunc)();
 typedef enum PROTO_RESULT (*ProtocolHandlerFunc)(char c);
 

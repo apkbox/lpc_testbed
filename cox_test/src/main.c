@@ -82,7 +82,7 @@ int UART_ReadChar()
 
 static void PrintVersionString(const fp_printf_write_func printf_write)
 {
-    func_printf_nofloat(printf_write, "+V:%d.%d %s", VERSION_MAJOR, VERSION_MINOR, VERSION_TIMESTAMP);
+    func_printf_nofloat(printf_write, "%d.%d %s", VERSION_MAJOR, VERSION_MINOR, VERSION_TIMESTAMP);
 }
 
 
@@ -93,9 +93,9 @@ static void PrintVersionString(const fp_printf_write_func printf_write)
 static uint8_t backlite_power = 0;
 
 enum {
-    PROTO_ID_RFID = 1,
-    PROTO_ID_RGB = 2,
-    PROTO_ID_SYS = 3
+    PROTO_ID_RFID = PROTO_ID_DEFAULT + 1,
+    PROTO_ID_RGB = PROTO_ID_DEFAULT + 2,
+    PROTO_ID_SYS = PROTO_ID_DEFAULT + 3
 };
 
 
@@ -106,6 +106,11 @@ static const ProtocolHandler g_protocol_handlers[] = {
      { 0, NULL, NULL, NULL }
 };
 
+static const char kOkResponse[] = "OK";
+static const char kNotAvailableResponse[] = "NA";
+static const char kErrorResponse[] = "ERROR";
+static const char kNewLine[] = "\n";
+
 
 void HandleInputChar(char c)
 {
@@ -114,15 +119,20 @@ void HandleInputChar(char c)
 
     result =  PROTO_HandleInputCharacter(c);
     if (result == RESULT_ERROR) {
-        UART_PrintString("+ER\r\n");
+        UART_PrintString(kErrorResponse);
     }
     else if( result == RESULT_ACCEPT ) {
         const ProtocolHandler *handler = PROTO_GetCurrentHandler();
         if (handler) {
             switch (handler->id) {
+                case PROTO_ID_DEFAULT:
+                    UART_PrintString(kOkResponse);
+                    UART_PrintString(kNewLine);
+                    break;
+
                 case PROTO_ID_SYS:
                     if (PROTO_SYS_GetCommand() == PROTO_SYS_COMMAND_RESET) {
-                        UART_PrintString("+RST\r\n");
+                        UART_PrintString(kOkResponse);
                         while(UART_CheckBusy(LPC_UART) != RESET);
                         NVIC_SystemReset();
                     }
@@ -130,10 +140,10 @@ void HandleInputChar(char c)
                         PrintVersionString(UART_WriteChar);
                     }
                     else {
-                        UART_PrintString("NA");
+                        UART_PrintString(kNotAvailableResponse);
                     }
 
-                    UART_PrintString("\r\n");
+                    UART_PrintString(kNewLine);
                     break;
 
                 /*
@@ -175,23 +185,23 @@ void HandleInputChar(char c)
                             CL632_WriteE2(addr, data, len);
                         }
 
-                        UART_PrintString("OK");
+                        UART_PrintString(kOkResponse);
                     }
                     else {
-                        UART_PrintString("NA");
+                        UART_PrintString(kNotAvailableResponse);
                     }
 
-                    UART_PrintString("\r\n");
+                    UART_PrintString(kNewLine);
                     break;
 
                 case PROTO_ID_RGB:
                     switch (PROTO_RGB_GetCommand()) {
                         case PROTO_RGB_COMMAND_CAPABILITIES:
-                            UART_PrintString("+CAP: RGB,TRAN");
+                            UART_PrintString("RGB,TRAN");
                             break;
 
                         case PROTO_RGB_COMMAND_PRINT_SEQUENCE:
-                            UART_PrintString("+S");
+                            UART_PrintString("S");
                             for (i = 0; i < SEQ_GetSequenceLength(); i++) {
                                 const COMMAND *cmd = &(SEQ_GetSequence()[i]);
                                 func_printf_nofloat(UART_WriteChar, " L%d#%02X%02X%02X",
@@ -201,15 +211,15 @@ void HandleInputChar(char c)
 
                         case PROTO_RGB_COMMAND_SET_SEQUENCE:
                             SEQ_SetSequence(PROTO_RGB_GetSequence(), PROTO_RGB_GetSequenceLength());
-                            UART_PrintString("+OK");
+                            UART_PrintString(kOkResponse);
                             break;
 
                         default:
-                            UART_PrintString("NA");
+                            UART_PrintString(kNotAvailableResponse);
                             break;
                     }
 
-                    UART_PrintString("\r\n");
+                    UART_PrintString(kNewLine);
                     break;
             }
         }
@@ -423,7 +433,6 @@ int main()
     KS0066_WaitForIdle();
 
     CoInitOS();
-    UART_PrintString("+OS:INIT\r\n");
     GPIO_SetBits(ACTIVITY_PORT, ACTIVITY_PIN);
 
     uart_task_id = CoCreateTask(uartTask, NULL, UART_TASK_PRIORITY,
@@ -433,27 +442,30 @@ int main()
             GetStackTop(activityTaskStack), GetStackSize(activityTaskStack));
 
     if (uart_task_id == E_CREATE_FAIL || activity_task_id == E_CREATE_FAIL) {
-        UART_PrintString("!OS:TASK\r\n");
+        UART_PrintString("INIT ERROR");
+        UART_PrintString(kNewLine);
     }
 
     if (reset_flags & 0x01)
-        UART_PrintString("+RST:PU\r\n");
+        UART_PrintString("RST:PU");
     else if (reset_flags & 0x02)
-        UART_PrintString("+RST:RST\r\n");
+        UART_PrintString("RST:RST");
     else if (reset_flags & 0x04)
-        UART_PrintString("+RST:WDT\r\n" );
+        UART_PrintString("RST:WDT");
     else if (reset_flags & 0x08)
-        UART_PrintString("+RST:BOD\r\n" );
+        UART_PrintString("RST:BOD");
     else if (reset_flags & 0x10)
-        UART_PrintString("+RST:SOFT\r\n");
+        UART_PrintString("RST:SOFT");
     else
-        UART_PrintString("+RST\r\n");
+        UART_PrintString("RST");
+
+    UART_PrintString(kNewLine);
 
     PrintVersionString(UART_WriteChar);
-    UART_PrintString("\r\n");
-    func_printf_nofloat(UART_WriteChar, "+COOS: %d\r\n", CoGetOSVersion());
+    UART_PrintString(kNewLine);
+    func_printf_nofloat(UART_WriteChar, "COOS:%d\r\n", CoGetOSVersion());
 
-    KS0066_WriteString("V: " __DATE__ " " __TIME__, KS0066_WRAP_FLAG);
+    KS0066_WriteString("V:" __DATE__ " " __TIME__, KS0066_WRAP_FLAG);
 
     CoStartOS();
 
