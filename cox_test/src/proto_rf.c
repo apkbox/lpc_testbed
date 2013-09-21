@@ -116,37 +116,38 @@ enum PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
             break;
 
         case STATE_EXPECT_ADDRESS:
-            if (isxdigit(c)) {
-                if (!PROTOBUF_Append(c)) {
-                    state = STATE_INITIAL;
-                    return RESULT_ERROR;
-                }
-            }
-            else if (c == ':') {
-                if (PROTOBUF_GetLength() == 0) {
-                    state = STATE_INITIAL;
-                    return RESULT_ERROR;
-                }
-                else {
-                    address = strtoul(PROTOBUF_GetBuffer(), NULL, 0);
-                    if (action == PROTO_RF_ACTION_READ) {
-                        state = STATE_EXPECT_LENGTH;
+            result = PROTO_ParseNumber(c);
+            if (result == RESULT_ACCEPT) {
+                if (c == ':') {
+                    if (PROTOBUF_GetLength() == 0) {
+                        state = STATE_INITIAL;
+                        return RESULT_ERROR;
                     }
                     else {
-                        state = STATE_EXPECT_DATA;
-                        length = 0;
-                    }
+                        address = strtoul(PROTOBUF_GetBuffer(), NULL, 0);
+                        if (action == PROTO_RF_ACTION_READ) {
+                            state = STATE_EXPECT_LENGTH;
+                        }
+                        else {
+                            state = STATE_EXPECT_DATA;
+                            length = 0;
+                        }
 
-                    PROTO_ResetSubparser();
+                        PROTO_ResetSubparser();
+                    }
+                }
+                else if (iscrlf(c) && PROTOBUF_GetLength() > 0 && action == PROTO_RF_ACTION_READ) {
+                    address = strtoul(PROTOBUF_GetBuffer(), NULL, 0);
+                    length = 1;
+                    state = STATE_INITIAL;
+                    return RESULT_ACCEPT;
+                }
+                else {
+                    state = STATE_INITIAL;
+                    return RESULT_ERROR;
                 }
             }
-            else if (iscrlf(c) && PROTOBUF_GetLength() > 0 && action == PROTO_RF_ACTION_READ) {
-                address = strtoul(PROTOBUF_GetBuffer(), NULL, 0);
-                length = 1;
-                state = STATE_INITIAL;
-                return RESULT_ACCEPT;
-            }
-            else {
+            else if (result == RESULT_ERROR) {
                 state = STATE_INITIAL;
                 return RESULT_ERROR;
             }
