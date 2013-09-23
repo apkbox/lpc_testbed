@@ -2,13 +2,14 @@
 #include "lpc11xx_ssp.h"
 
 #include "cl632_config.h"
+#include "delay.h"
 
 
-static void delay_ns(int ns)
+/*static void delay_ns(int ns)
 {
     volatile unsigned int cycles = ns / (1000000000 / SystemCoreClock);
     while (cycles--);
-}
+}*/
 
 
 void CL632_Init()
@@ -28,6 +29,7 @@ void CL632_Init()
     ssp_config.Mode = SSP_MASTER_MODE;
     ssp_config.FrameFormat = SSP_FRAME_SPI;
     ssp_config.ClockRate = 16000;
+    //ssp_config.ClockRate = 4000;
     SSP_Init(CL632_SPI, &ssp_config);
 
     CL632_COFNIGURE_SSEL_PIN();

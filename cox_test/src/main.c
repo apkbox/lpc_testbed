@@ -28,9 +28,11 @@
 #include "proto_rf.h"
 #include "proto_rgb.h"
 #include "proto_sys.h"
+#include "proto_spi.h"
 
 #include "ks0066.h"
 #include "cl632.h"
+#include "delay.h"
 
 #define VERSION_MAJOR     1
 #define VERSION_MINOR     0
@@ -85,6 +87,32 @@ static void PrintVersionString(const fp_printf_write_func printf_write)
     func_printf_nofloat(printf_write, "%d.%d %s", VERSION_MAJOR, VERSION_MINOR, VERSION_TIMESTAMP);
 }
 
+uint8_t SPI_ReadByte()
+{
+    return 0;
+}
+
+void SPI_Write(const uint8_t *data, uint16_t len)
+{
+    if (len == 0)
+        return;
+
+    while (SSP_GetStatus(CL632_SPI, SSP_STAT_TXFIFO_EMPTY) == RESET);
+
+    GPIO_ResetBits(CL632_SSEL_PORT, CL632_SSEL_PIN);
+    delay_ns(100);
+
+    while (len-- > 0) {
+        SSP_SendData(CL632_SPI, *data++);
+        while (SSP_GetStatus(CL632_SPI, SSP_STAT_TXFIFO_NOTFULL) == RESET);
+    }
+
+    while (SSP_GetStatus(CL632_SPI, SSP_STAT_TXFIFO_EMPTY) == RESET);
+
+    delay_ns(100);
+    GPIO_SetBits(CL632_SSEL_PORT, CL632_SSEL_PIN);
+}
+
 
 #define ARRAYSIZE(array)      (sizeof(array)/sizeof(array[0]))
 #define GetStackTop(stack)    (&stack[ARRAYSIZE(stack)-1])
@@ -95,7 +123,8 @@ static uint8_t backlite_power = 0;
 enum {
     PROTO_ID_RFID = PROTO_ID_DEFAULT + 1,
     PROTO_ID_RGB = PROTO_ID_DEFAULT + 2,
-    PROTO_ID_SYS = PROTO_ID_DEFAULT + 3
+    PROTO_ID_SYS = PROTO_ID_DEFAULT + 3,
+    PROTO_ID_SPI = PROTO_ID_DEFAULT + 4
 };
 
 
@@ -103,6 +132,7 @@ static const ProtocolHandler g_protocol_handlers[] = {
      { PROTO_ID_RFID, RF_PROTOCOL_PREFIX, PROTO_RF_ProtocolHandler, PROTO_RF_ProtocolReset },
      { PROTO_ID_RGB, RGB_PROTOCOL_PREFIX, PROTO_RGB_ProtocolHandler, PROTO_RGB_ProtocolReset },
      { PROTO_ID_SYS, SYS_PROTOCOL_PREFIX, PROTO_SYS_ProtocolHandler, PROTO_SYS_ProtocolReset },
+     { PROTO_ID_SPI, SPI_PROTOCOL_PREFIX, PROTO_SPI_ProtocolHandler, PROTO_SPI_ProtocolReset },
      { 0, NULL, NULL, NULL }
 };
 
@@ -153,10 +183,33 @@ void HandleInputChar(char c)
                         break;
                 */
 
+                case PROTO_ID_SPI:
+                    if (0 && PROTO_SPI_GetAction() == PROTO_SPI_ACTION_READ) {
+                        int len = PROTO_SPI_GetLength();
+                        func_printf_nofloat(UART_WriteChar, "%02X:", len);
+                        for (i = 0; i < len; i++) {
+                            uint8_t b;
+                            b = SPI_ReadByte();
+                            func_printf_nofloat(UART_WriteChar, " %02X", b);
+                        }
+                    }
+                    else if (PROTO_SPI_GetAction() == PROTO_SPI_ACTION_WRITE) {
+                        uint8_t *data = PROTO_SPI_GetData();
+                        int len = PROTO_SPI_GetLength();
+                        SPI_Write(data, len);
+                        UART_PrintString(kOkResponse);
+                    }
+                    else {
+                        UART_PrintString(kNotAvailableResponse);
+                    }
+
+                    UART_PrintString(kNewLine);
+                    break;
+
                 case PROTO_ID_RFID:
                     if (PROTO_RF_GetAction() == PROTO_RF_ACTION_READ) {
                         int len = PROTO_RF_GetLength();
-                        func_printf_nofloat(UART_WriteChar, "%02X: ", len);
+                        func_printf_nofloat(UART_WriteChar, "%02X:", len);
                         for (i = 0; i < len; i++) {
                             int addr = PROTO_RF_GetAddress();
                             uint8_t b;

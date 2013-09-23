@@ -1,13 +1,13 @@
 #include "ks0066.h"
 
 #include "system_LPC11xx.h"
+#include "delay.h"
 
-
-static void delay_ns(int ns)
+/*static void delay_ns(int ns)
 {
     volatile unsigned int cycles = ns / (1000000000 / SystemCoreClock);
     while (cycles--);
-}
+}*/
 
 
 void KS0066_PowerUpDelay()

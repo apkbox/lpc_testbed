@@ -193,8 +193,14 @@ enum PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
                 }
             }
             else if (result == RESULT_ERROR) {
-                state = STATE_INITIAL;
-                return RESULT_ERROR;
+                if (iscrlf(c) && length > 0) {
+                    state = STATE_INITIAL;
+                    return RESULT_ACCEPT;
+                }
+                else if (c != ' ') {
+                    state = STATE_INITIAL;
+                    return RESULT_ERROR;
+                }
             }
             break;
 
