@@ -92,6 +92,13 @@ uint8_t SPI_ReadByte()
     return 0;
 }
 
+
+/*
+ * This is a bit special SPI method.
+ *    - Pulses Asserts SSEL (CS) and holds high for the duration of command.
+ *    - Does not pulse SSEL between bytes.
+ *    - Does not change SSEL after the write.
+ */
 void SPI_Write(const uint8_t *data, uint16_t len)
 {
     if (len == 0)
@@ -99,7 +106,10 @@ void SPI_Write(const uint8_t *data, uint16_t len)
 
     while (SSP_GetStatus(CL632_SPI, SSP_STAT_TXFIFO_EMPTY) == RESET);
 
+    // Send reset.
     GPIO_ResetBits(CL632_SSEL_PORT, CL632_SSEL_PIN);
+    delay_ns(100);
+    GPIO_SetBits(CL632_SSEL_PORT, CL632_SSEL_PIN);
     delay_ns(100);
 
     while (len-- > 0) {
@@ -110,7 +120,6 @@ void SPI_Write(const uint8_t *data, uint16_t len)
     while (SSP_GetStatus(CL632_SPI, SSP_STAT_TXFIFO_EMPTY) == RESET);
 
     delay_ns(100);
-    GPIO_SetBits(CL632_SSEL_PORT, CL632_SSEL_PIN);
 }
 
 
