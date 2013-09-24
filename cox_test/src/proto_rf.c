@@ -197,7 +197,10 @@ enum PROTO_RESULT PROTO_RF_ProtocolHandler(char c)
                     state = STATE_INITIAL;
                     return RESULT_ACCEPT;
                 }
-                else if (c != ' ') {
+                else if (c == ' ') {
+                    PROTO_ResetSubparser();
+                }
+                else {
                     state = STATE_INITIAL;
                     return RESULT_ERROR;
                 }
